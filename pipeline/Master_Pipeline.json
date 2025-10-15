@@ -1,0 +1,231 @@
+{
+	"name": "Master_Pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "CSV_PARQUET",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.10:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "CSV_PARQUET",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"source1": {
+								"container_name": "stagdatacontainer",
+								"folder_name": "SeattleLicense",
+								"file_name": "Seattle_Pet_Licenses_20251013.csv"
+							},
+							"sink1": {
+								"container_name": "stagdatacontainer",
+								"folder_name": "Seattle",
+								"file_name": "Seattle.parquet"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Location_Dim_Load",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "PARQUET_2_SNOWFLAKE",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.10:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "LocationDimload",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sink1": {
+								"schema_name": "DW",
+								"table_name": "LOCATION_DIM"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "PARQUET_2_SNOWFLAKE",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "CSV_PARQUET",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.10:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "PARQUET_SNOWFLAKE",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"source1": {
+								"container_name": "stagdatacontainer",
+								"folder_name": "Seattle",
+								"file_name": "SeattlePetLicense.parquet"
+							},
+							"sink1": {
+								"schema_name": "STAGE",
+								"table_name": "PET_LICENSE_STAGE"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Breed_Dim_Load",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Location_Dim_Load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.10:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Df_Breed_DIM",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sourceStage": {
+								"schema_name": "STAGE",
+								"table_name": "PET_LICENSE_STAGE"
+							},
+							"BreedMaxId": {
+								"schema_name": "DW",
+								"table_name": "BREED_DIM"
+							},
+							"sourceBreedDIm": {
+								"schema_name": "DW",
+								"table_name": "BREED_DIM"
+							},
+							"sink1": {
+								"schema_name": "DW",
+								"table_name": "BREED_DIM"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Fact_Table_Load",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Breed_Dim_Load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.10:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_fact_load",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sourcestg": {
+								"schema_name": "STAGE",
+								"table_name": "PET_LICENSE_STAGE"
+							},
+							"sourceLocDim": {
+								"schema_name": "DW",
+								"table_name": "LOCATION_DIM"
+							},
+							"sourceBreedDim": {
+								"schema_name": "DW",
+								"table_name": "BREED_DIM"
+							},
+							"sourceDateDim": {
+								"schema_name": "DW",
+								"table_name": "DATE_DIM"
+							},
+							"FactMaxId": {
+								"schema_name": "DW",
+								"table_name": "PET_LIC_FACT"
+							},
+							"sink1": {
+								"schema_name": "DW",
+								"table_name": "PET_LIC_FACT"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-10-15T20:21:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

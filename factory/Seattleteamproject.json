@@ -1,0 +1,9 @@
+{
+	"name": "Seattleteamproject",
+	"location": "westus3",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "30772314-b21b-49a2-a6ab-1c7eca283f91",
+		"tenantId": "a8eec281-aaa3-4dae-ac9b-9a398b9215e7"
+	}
+}

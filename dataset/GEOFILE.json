@@ -1,0 +1,25 @@
+{
+	"name": "GEOFILE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "is_AzureBlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "geo-data(in).csv",
+				"folderPath": "SeattleLicense",
+				"container": "stagdatacontainer"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

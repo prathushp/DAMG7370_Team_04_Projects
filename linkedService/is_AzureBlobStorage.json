@@ -1,0 +1,12 @@
+{
+	"name": "is_AzureBlobStorage",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"serviceEndpoint": "https://stgfall2025.blob.core.windows.net/",
+			"accountKind": "StorageV2"
+		}
+	}
+}

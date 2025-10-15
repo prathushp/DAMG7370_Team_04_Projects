@@ -1,0 +1,26 @@
+{
+	"name": "Snowflake_Pet_License",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SnowflakeV2",
+		"typeProperties": {
+			"authenticationType": "Basic",
+			"accountIdentifier": "RCVOYBU-ZSC95331",
+			"user": "PETLICENSE_USER",
+			"database": "PETLICENSE_DB",
+			"warehouse": "PETLICENSE_WH",
+			"role": "PETLICENSE_ROLE",
+			"host": "RCVOYBU-ZSC95331.snowflakecomputing.com",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault1",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "snowflakePETLICENSEUSER"
+			}
+		},
+		"version": "1.1"
+	}
+}
